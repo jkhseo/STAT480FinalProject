@@ -73,33 +73,145 @@ Ideal_state = State_Data %>%
 
 
 
-#-----------------------------------------------------
-Republican_state = State_Data %>%
+#-----------------------------------------------------part 2-----------------------------------------------------
+State_Score = State_Data %>%
   select(state, white_pct:rural_pct)
 
 #Subtracting each demographic observation from the ideal observation for each state
 i=2
 j=1
 for(i in 2:length(Ideal_state)){
-  for(j in 1:nrow(Republican_state)){
-    Republican_state[j,i]= abs(Republican_state[j,i]-Ideal_state[i-1])
+  for(j in 1:nrow(State_score)){
+    State_Score[j,i]= abs(State_Score[j,i]-Ideal_state[i-1])
   }
 }
 
 #Adjusting the "average_median_hh_inc" variable
-Republican_state = Republican_state %>%
+State_Score = State_Score %>%
   mutate(average_median_hh_inc = average_median_hh_inc/3000)
 
-#Creating "score" variable (summing up all the subtracted demographic observations for each each)
-Republican_state$score = rowSums(Republican_state[,2:16])
+#Creating "score" variable (combining all of the absolute values of the subtracted demographic observations for each state)
+State_Score$score = rowSums(State_Score[,2:16])
 
-#The top 5 best states in general
-Republican_state %>%
+#The top 5 best states in general (the lower score means less difference from the ideal state demographic)
+State_Score %>%
   select(state, score) %>%
   arrange(score) %>%
   slice(1:5) #Illinois, Delaware, Washington, Rhode Island, Connecticut
 
 #-------Republican Party-------
+Republican_State_Score = State_Data %>%
+  select(state, white_pct:rural_pct)
+
+#Adjustment to the less important variables for Republican
+Republican_State_Score$white_pct = Republican_State_Score$white_pct * 1.51
+Republican_State_Score$rural_pct = Republican_State_Score$rural_pct * 1.54
+
+
+#Subtracting each demographic observation from the ideal observation for each state
+i=2
+j=1
+for(i in 2:length(Ideal_state)){
+  for(j in 1:nrow(Republican_State_Score)){
+    Republican_State_Score[j,i]= abs(Republican_State_Score[j,i]-Ideal_state[i-1])
+  }
+}
+
+#Adjusting the "average_median_hh_inc" variable
+Republican_State_Score = Republican_State_Score %>%
+  mutate(average_median_hh_inc = average_median_hh_inc/3000)
+
+#Creating "score" variable (summing all of the absolute values of the subtracted demographic observations for each state)
+Republican_State_Score$score = rowSums(Republican_State_Score[,2:16])
+
+#The top 5 best states in Republican Party (the lower score means less difference from the ideal state demographic)
+Republican_State_Score %>%
+  select(state, score) %>%
+  arrange(score) %>%
+  slice(1:5) #Illinois, Florida, New Jersey, Arizona, Nevada
+
+#--Republican-Map--
+library(tidyverse)
+#states_abb = read.csv("https://raw.githubusercontent.com/jasonong/List-of-US-States/master/states.csv")
+states_location = map_data("state") #doesn't have Hawaii
+states_location_for_texts = read.csv("statelatlong.csv")
+
+#states_abb = states_abb %>%
+  slice(-2)
+states_location$region = str_to_title(states_location$region)
+states_location_for_texts = states_location_for_texts %>%
+  slice(-2)
+
+Republican_State_Score_map = Republican_State_Score %>% 
+  #left_join(states_abb, by = c("state" = "State")) %>%
+  left_join(states_location, by = c("state" = "region")) %>%
+  left_join(states_location_for_texts, by = c("state" = "City"))
+
+
+install.packages("ggspatial")
+library(ggspatial)
+library(sf)
+
+ggplot(Republican_State_Score_map, aes(x = long, y = lat)) + 
+  geom_polygon(aes(group = group, fill = score), color = "white") +
+  geom_polygon(data = Republican_State_Score_map %>% 
+                 filter(state %in% c("Illinois", "Florida", "New Jersey", "Arizona", "Nevada")),
+               aes(group = group, fill = score), size = 2, color = "black") +
+  #scale_fill_gradient2(low = "white", high = "red", na.value = NA) + #might want to change the lower scores --> darker color
+  scale_fill_gradientn(colours = terrain.colors(10)) +
+  geom_text(data = Republican_State_Score_map %>% 
+              filter(!state %in% c("New York", "New Hampshire", "Vermont", "Massachusetts", "Rhode Island", "Connecticut", "New Jersey", "Delaware", "Maryland", "District of Columbia", "West Virginia",
+                                   "Florida", "Idaho", "Nevada", "Oklahoma", "Texas", "Louisiana", "Minnesota", "Michigan", "Illinois", "North Carolina", "Virginia", "Hawaii")),
+            aes(x = Longitude, y = Latitude, label = State), 
+            vjust = 0 , size = 5) +
+  geom_text(data = Republican_State_Score_map %>% 
+              filter(!state %in% c("New York", "New Hampshire", "Vermont", "Massachusetts", "Rhode Island", "Connecticut", "New Jersey", "Delaware", "Maryland", "District of Columbia", "West Virginia",
+                                   "Florida", "Idaho", "Nevada", "Oklahoma", "Texas", "Louisiana", "Minnesota", "Michigan", "Illinois", "North Carolina", "Virginia", "Hawaii")),
+            aes(x = Longitude, y = Latitude, label = round(score, digits = 0)), 
+            vjust = + 1.5 , size = 5, color = "black", family = "Times") +
+  #annotate(geom = "text", x = -120, y = 48, label = "WA", size = 5,
+           #geom = "text", x = -117, y = 40, label = "NV", size = 5) 
+  #annotation_scale() +
+  #annotation_north_arrow() +
+  labs(fill = "State Scores") +
+  theme(legend.position = "top") +
+  ggtitle("Scores by State") +
+  scale_y_continuous(breaks=c()) +
+  scale_x_continuous(breaks=c()) +
+  #theme_void()
+
+
+#-------Democratic Party-------
+Democratic_State_Score = State_Data %>%
+  select(state, white_pct:rural_pct)
+
+#Adjustment to the less important variables for Republican
+Democratic_State_Score$black_pct = Democratic_State_Score$black_pct * 1.84
+Democratic_State_Score$hispanic_pct = Democratic_State_Score$rural_pct * 1.54
+Democratic_State_Score$female_pct = Democratic_State_Score$female_pct * 1.56
+
+#Subtracting each demographic observation from the ideal observation for each state
+i=2
+j=1
+for(i in 2:length(Ideal_state)){
+  for(j in 1:nrow(Democratic_State_Score)){
+    Democratic_State_Score[j,i]= abs(Democratic_State_Score[j,i]-Ideal_state[i-1])
+  }
+}
+
+#Adjusting the "average_median_hh_inc" variable
+Democratic_State_Score = Democratic_State_Score %>%
+  mutate(average_median_hh_inc = average_median_hh_inc/3000)
+
+#Creating "score" variable (summing all of the absolute values of the subtracted demographic observations for each state)
+Democratic_State_Score$score = rowSums(Democratic_State_Score[,2:16])
+
+#The top 5 best states in Republican Party (the lower score means less difference from the ideal state demographic)
+Democratic_State_Score %>%
+  select(state, score) %>%
+  arrange(score) %>%
+  slice(1:5) #Arizona, Illinois, Rhode Island, Washington, Connecticut
+
 
 
 

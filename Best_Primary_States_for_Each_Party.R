@@ -221,8 +221,6 @@ ggplot(Republican_State_Score_map, aes(x = long, y = lat)) +
   annotate(geom = "text", x = -78.5, y = 37.3, label = "56", size = 5, fontface = "bold") +
   annotate(geom = "text", x = -120, y = 47.3, label = "62", size = 5, fontface = "bold") +
   annotate(geom = "text", x = -115, y = 25.3, label = "155", size = 5, fontface = "bold") +
-  #annotation_scale() +
-  #annotation_north_arrow() +
   theme_bw() +
   labs(fill = "State Scores",
        title = "Scores by State") +
@@ -230,7 +228,6 @@ ggplot(Republican_State_Score_map, aes(x = long, y = lat)) +
         plot.title = element_text(hjust = 0.5, size = 15, face = "bold")) +
   scale_y_continuous(breaks=c()) +
   scale_x_continuous(breaks=c())
-  #theme_void()
 
 
 #-----------------------------------Democratic Party-----------------------------------
@@ -351,8 +348,6 @@ annotate(geom = "text", x = -75, y = 43.3, label = "87", size = 5, fontface = "b
   annotate(geom = "text", x = -78.5, y = 37.3, label = "88", size = 5, fontface = "bold") +
   annotate(geom = "text", x = -120, y = 47.3, label = "71", size = 5, fontface = "bold") +
   annotate(geom = "text", x = -115, y = 25.3, label = "172", size = 5, fontface = "bold") +
-  #annotation_scale() +
-  #annotation_north_arrow() +
   theme_bw() +
   labs(fill = "State Scores",
        title = "Scores by State") +
@@ -360,6 +355,5 @@ annotate(geom = "text", x = -75, y = 43.3, label = "87", size = 5, fontface = "b
         plot.title = element_text(hjust = 0.5, size = 15, face = "bold")) +
   scale_y_continuous(breaks=c()) +
   scale_x_continuous(breaks=c())
-#theme_void()
 
 

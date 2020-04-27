@@ -103,20 +103,21 @@ State_Score %>%
   arrange(score) %>%
   slice(1:5) #Illinois, Delaware, Washington, Rhode Island, Connecticut
 
+
 #-------Republican Party-------
 Republican_State_Score = State_Data %>%
   select(state, white_pct:rural_pct)
 #Increasing prefered demographics republicans have trouble with: Black, hispanic, female, youth
-Republican_Ideal_State = Ideal_State %>% mutate(black_pct = black_pct + 3,
-                                                hispanic_pct = hispanic_pct + 3,
-                                                other_pct = other_pct + 3,
-                                                female_pct = female_pct +1,
-                                                age29andunder_pct = age29andunder_pct +3,
-                                                lesshs_pct = lesshs_pct -3,
-                                                lesscollege_pct = lesscollege_pct -2,
-                                                lesshs_whites_pct = lesshs_whites_pct -2,
-                                                lesscollege_whites_pct = lesscollege_whites_pct -2,
-                                                rural_pct = rural_pct -3)
+Republican_Ideal_State = Ideal_State %>% mutate(black_pct = black_pct + sd(State_Score$black_pct),
+                                                hispanic_pct = hispanic_pct + sd(State_Score$hispanic_pct),
+                                                other_pct = other_pct + sd(State_Score$other_pct),
+                                                female_pct = female_pct + sd(State_Score$female_pct),
+                                                age29andunder_pct = age29andunder_pct + sd(State_Score$age29andunder_pct),
+                                                lesshs_pct = lesshs_pct - sd(State_Score$lesshs_pct),
+                                                lesscollege_pct = lesscollege_pct - sd(State_Score$lesscollege_pct),
+                                                lesshs_whites_pct = lesshs_whites_pct - sd(State_Score$lesshs_whites_pct),
+                                                lesscollege_whites_pct = lesscollege_whites_pct - sd(State_Score$lesscollege_whites_pct),
+                                                rural_pct = rural_pct - sd(State_Score$rural_pct))
 
 #Subtracting each demographic observation from the ideal observation for each state
 i=2
@@ -247,16 +248,16 @@ annotate(geom = "text", x = -75, y = 44, label = "NY", size = 5, fontface = "bol
 Democrat_State_Score = State_Data %>%
   select(state, white_pct:rural_pct)
 #Increasing prefered demographics republicans have trouble with: Black, hispanic, female, youth
-Democrat_Ideal_State = Ideal_State %>% mutate(black_pct = black_pct - 3,
-                                                hispanic_pct = hispanic_pct - 3,
-                                                other_pct = other_pct - 3,
-                                                female_pct = female_pct -1,
-                                                age29andunder_pct = age29andunder_pct -3,
-                                                lesshs_pct = lesshs_pct +3,
-                                                lesscollege_pct = lesscollege_pct +2,
-                                                lesshs_whites_pct = lesshs_whites_pct +2,
-                                                lesscollege_whites_pct = lesscollege_whites_pct +2,
-                                                rural_pct = rural_pct +3)
+Democrat_Ideal_State = Ideal_State %>% mutate(black_pct = black_pct - sd(State_Score$black_pct),
+                                              hispanic_pct = hispanic_pct - sd(State_Score$hispanic_pct),
+                                              other_pct = other_pct - sd(State_Score$other_pct),
+                                              female_pct = female_pct - sd(State_Score$female_pct),
+                                              age29andunder_pct = age29andunder_pct - sd(State_Score$age29andunder_pct),
+                                              lesshs_pct = lesshs_pct + sd(State_Score$lesshs_pct),
+                                              lesscollege_pct = lesscollege_pct + sd(State_Score$lesscollege_pct),
+                                              lesshs_whites_pct = lesshs_whites_pct + sd(State_Score$lesshs_whites_pct),
+                                              lesscollege_whites_pct = lesscollege_whites_pct + sd(State_Score$lesscollege_whites_pct),
+                                              rural_pct = rural_pct + sd(State_Score$rural_pct))
 
 #Subtracting each demographic observation from the ideal observation for each state
 i=2
@@ -279,8 +280,9 @@ Democrat_State_Score$score = rowSums(Democrat_State_Score[,2:16])
 Democrat_State_Score %>%
   select(state, score) %>%
   arrange(score) %>%
-  slice(1:5) #Illinois, Florida, New Jersey, Arizona, Nevada
+  slice(1:20) #Illinois, Florida, New Jersey, Arizona, Nevada
 
+ggplot(aes(x=Republican_State_Score$score,y=Democrat_State_Score$score)) + geom_point()
 
 
 

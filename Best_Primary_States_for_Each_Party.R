@@ -99,7 +99,7 @@ General_State_Score = General_State_Score %>%
 #Creating "score" variable (summing all of the absolute values of the subtracted demographic observations for each state)
 General_State_Score$score = rowSums(General_State_Score[,2:16])
 
-#The top 5 best states in Republican Party (the lower score means less difference from the ideal state demographic)
+#The top 5 best states for Unadjusted primary (the lower score means less difference from the ideal state demographic)
 General_State_Score %>%
   select(state, score) %>%
   arrange(score) %>%
